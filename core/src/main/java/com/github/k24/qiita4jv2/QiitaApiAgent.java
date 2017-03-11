@@ -37,6 +37,12 @@ public class QiitaApiAgent {
     private final String accessToken;
     private List<String> scopes;
 
+    public QiitaApiAgent(Retrofit retrofit, String accessToken) {
+        this.retrofit = retrofit;
+        this.accessToken = accessToken;
+    }
+
+    //region For authorization URL
     public static String composeOAuthUrl(String clientId, List<AccessTokensApi.Scope> scopes, String state) {
         if (scopes == null || scopes.isEmpty()) throw new IllegalArgumentException("scopes must have one or more item");
         StringBuilder buf = new StringBuilder();
@@ -61,7 +67,9 @@ public class QiitaApiAgent {
             throw new UnsupportedOperationException(e);
         }
     }
+    //endregion
 
+    //region Use authorization
     // First
     // - CallAdapter for Promise
     // - Converter for JSON
@@ -112,13 +120,14 @@ public class QiitaApiAgent {
         scopes = accessTokenResponse.scopes;
     }
 
-    protected static OkHttpClient.Builder okHttpClientBuilder(/*Nonnull*/ final String accessToken) {
+    public static OkHttpClient.Builder okHttpClientBuilder(/*Nonnull*/ final String accessToken) {
         return new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
                         Request originalRequest = chain.request();
                         Request request = new Request.Builder()
+                                .url(originalRequest.url())
                                 .addHeader("Authorization", String.format(Locale.US, FORMAT_AUTHORIZATION_VALUE, accessToken))
                                 .method(originalRequest.method(), originalRequest.body())
                                 .build();
@@ -126,6 +135,7 @@ public class QiitaApiAgent {
                     }
                 });
     }
+    //endregion
 
     public String accessToken() {
         return accessToken;
@@ -139,6 +149,7 @@ public class QiitaApiAgent {
         return retrofit;
     }
 
+    //region Use user's token
     // First and next by user
     // Get access token
     // Create with OkHttp
@@ -151,12 +162,18 @@ public class QiitaApiAgent {
                 .accessToken(accessTokenBody);
     }
 
-    public static QiitaApiAgent create(Config config, OkHttpClient okHttpClient, AccessTokensApi.AccessTokenResponse accessTokenResponse) {
-        return new QiitaApiAgent(retrofitBuilder(config).client(okHttpClient).build(), accessTokenResponse);
+    public static QiitaApiAgent create(Config config, String accessToken) {
+        return create(config, okHttpClientBuilder(accessToken).build(), accessToken);
     }
 
-    // Apis
+    public static QiitaApiAgent create(Config config, OkHttpClient okHttpClient, String accessToken) {
+        return new QiitaApiAgent(retrofitBuilder(config)
+                .client(okHttpClient)
+                .build(), accessToken);
+    }
+    //endregion
 
+    //region Apis
     private final Map<Class, Object> apis = new HashMap<>();
 
     @SuppressWarnings("unchecked")
@@ -204,4 +221,5 @@ public class QiitaApiAgent {
     public UsersApi usersApi() {
         return ensureApi(UsersApi.class);
     }
+    //endregion
 }

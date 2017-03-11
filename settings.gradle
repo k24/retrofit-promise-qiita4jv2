@@ -1,2 +1,5 @@
 rootProject.name = 'retrofit-promise-qiita4jv2'
+include 'core'
+findProject(':core')?.name = 'retrofit-promise-qiita4jv2'
+include 'sample'
 
