@@ -21,3 +21,10 @@ dependencies {
 
 apply plugin: 'application'
 mainClassName = 'com.github.k24.qiita4jv2.Qiita4jv2Sample'
+
+// ./gradlew :sample:run --offline -Pargs="YourAccessToken"
+run {
+    if (project.hasProperty('args')) {
+        args(project.args.split('\\s+'))
+    }
+}
