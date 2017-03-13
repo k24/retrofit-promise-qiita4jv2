@@ -18,6 +18,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.MockRetrofit;
+import retrofit2.mock.NetworkBehavior;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,11 +38,14 @@ public class QiitaApiAgentTagTest {
     public void setUp() throws Exception {
         mockRetrofit = new MockRetrofit.Builder(new Retrofit.Builder()
                 .baseUrl("https://qiita.com/api/v2/")
-                .addCallAdapterFactory(PromiseCallAdapterFactory.create(new RxJava2DeferredFactory(Schedulers.io())))
+                .addCallAdapterFactory(PromiseCallAdapterFactory.create(RxJava2DeferredFactory.createWithScheduler(Schedulers.io())))
                 .addConverterFactory(JsonicConverterFactory.create())
                 .client(new OkHttpClient())
                 .build())
                 .build();
+        NetworkBehavior networkBehavior = mockRetrofit.networkBehavior();
+        networkBehavior.setErrorPercent(0);
+        networkBehavior.setFailurePercent(0);
 
         BehaviorDelegate<TagsApi> delegate = mockRetrofit.create(TagsApi.class);
         mockTagsApi = new MockTagsApi(delegate).withDefault();

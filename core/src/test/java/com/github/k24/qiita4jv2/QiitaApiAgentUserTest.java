@@ -6,6 +6,7 @@ import com.github.k24.deferred.RxJava2Promise;
 import com.github.k24.qiita4jv2.api.UsersApi;
 import com.github.k24.qiita4jv2.model.User;
 import com.github.k24.qiita4jv2.util.Success;
+import com.github.k24.qiita4jv2.util.SuccessConverterFactory;
 import com.github.k24.retrofit2.adapter.promise.PromiseCallAdapterFactory;
 import com.github.k24.retrofit2.converter.jsonic.JsonicConverterFactory;
 import io.reactivex.schedulers.Schedulers;
@@ -18,6 +19,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.MockRetrofit;
+import retrofit2.mock.NetworkBehavior;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,11 +39,15 @@ public class QiitaApiAgentUserTest {
     public void setUp() throws Exception {
         mockRetrofit = new MockRetrofit.Builder(new Retrofit.Builder()
                 .baseUrl("https://qiita.com/api/v2/")
-                .addCallAdapterFactory(PromiseCallAdapterFactory.create(new RxJava2DeferredFactory(Schedulers.io())))
+                .addCallAdapterFactory(PromiseCallAdapterFactory.create(RxJava2DeferredFactory.createWithScheduler(Schedulers.io())))
+                .addConverterFactory(SuccessConverterFactory.create())
                 .addConverterFactory(JsonicConverterFactory.create())
                 .client(new OkHttpClient())
                 .build())
                 .build();
+        NetworkBehavior networkBehavior = mockRetrofit.networkBehavior();
+        networkBehavior.setErrorPercent(0);
+        networkBehavior.setFailurePercent(0);
 
         BehaviorDelegate<UsersApi> delegate = mockRetrofit.create(UsersApi.class);
         mockUsersApi = new MockUsersApi(delegate).withDefault();
