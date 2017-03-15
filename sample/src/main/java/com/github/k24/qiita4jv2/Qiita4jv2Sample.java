@@ -4,6 +4,7 @@ import com.github.k24.deferred.Deferred;
 import com.github.k24.deferred.RxJava2DeferredFactory;
 import com.github.k24.qiita4jv2.api.AccessTokensApi;
 import com.github.k24.qiita4jv2.model.Item;
+import com.github.k24.qiita4jv2.model.team.Team;
 import com.github.k24.qiita4jv2.util.Success;
 import com.github.k24.retrofit2.converter.jsonic.JsonicConverterFactory;
 import io.reactivex.annotations.NonNull;
@@ -49,6 +50,7 @@ public class Qiita4jv2Sample {
                 okHttpClient,
                 accessToken);
 
+        System.out.println("items:");
         try {
             qiitaApiAgent.itemsApi().items(null, null, "tag:android")
                     .then(QiitaPagination.<List<Item>>mapPaginate())
@@ -58,6 +60,36 @@ public class Qiita4jv2Sample {
                             System.out.println("totalCount: " + listQiitaPagination.totalCount());
                             for (Item item : listQiitaPagination.data()) {
                                 System.out.println(item.title);
+                            }
+                            return Success.SUCCESS;
+                        }
+                    }).waitForCompletion();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("------");
+
+        String teamId = args.length > 1 ? args[1] : null;
+        if (teamId == null) {
+            teamId = System.getenv("QIITA_TEAM_ID");
+            if (teamId == null || teamId.isEmpty()) {
+                System.out.println("Set Team ID with args[1] or QIITA_TEAM_ID");
+                return;
+            }
+        }
+
+        QiitaTeamApiAgent qiitaTeamApiAgent = QiitaTeamApiAgent.create(teamId, qiitaApiAgent);
+
+        System.out.println("teams:");
+
+        try {
+            qiitaTeamApiAgent.teamsApi().teams()
+                    .then(new Deferred.OnResolved<List<Team>, Success>() {
+                        @Override
+                        public Success onResolved(List<Team> teams) throws Exception {
+                            for (Team team : teams) {
+                                System.out.println(team.name);
                             }
                             return Success.SUCCESS;
                         }

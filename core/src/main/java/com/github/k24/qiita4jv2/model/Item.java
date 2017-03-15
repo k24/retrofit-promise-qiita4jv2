@@ -1,5 +1,8 @@
 package com.github.k24.qiita4jv2.model;
 
+import com.github.k24.qiita4jv2.annotation.TeamOnly;
+import com.github.k24.qiita4jv2.model.team.Group;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -10,7 +13,8 @@ public class Item extends ItemBody {
     public String rendered_body;
     @Nonnull
     public String created_at;
-    //    public group;
+    @TeamOnly
+    public Group group;
     @Nonnull
     public String id;
     @Nonnull

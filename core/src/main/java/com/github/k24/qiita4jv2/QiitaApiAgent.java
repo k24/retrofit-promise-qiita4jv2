@@ -1,7 +1,13 @@
 package com.github.k24.qiita4jv2;
 
 import com.github.k24.deferred.Deferred;
-import com.github.k24.qiita4jv2.api.*;
+import com.github.k24.qiita4jv2.api.AccessTokensApi;
+import com.github.k24.qiita4jv2.api.AuthenticatedUserApi;
+import com.github.k24.qiita4jv2.api.CommentsApi;
+import com.github.k24.qiita4jv2.api.ItemsApi;
+import com.github.k24.qiita4jv2.api.ReactionsApi;
+import com.github.k24.qiita4jv2.api.TagsApi;
+import com.github.k24.qiita4jv2.api.UsersApi;
 import com.github.k24.qiita4jv2.util.SuccessConverterFactory;
 import com.github.k24.retrofit2.adapter.promise.PromiseCallAdapterFactory;
 import okhttp3.Interceptor;
@@ -24,7 +30,9 @@ import java.util.Map;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class QiitaApiAgent {
-    public static final String URL_BASE = "https://qiita.com/api/v2/";
+    protected static final String URL_BASE_HOST = "qiita.com";
+    protected static final String URL_BASE_PATH = "/api/v2/";
+    public static final String URL_BASE = "https://" + URL_BASE_HOST + URL_BASE_PATH;
     public static final String URL_OAUTH = URL_BASE + "oauth/authorize";
 
     public static final String URL_JSON_SCHEMA = "http://qiita.com/api/v2/schema";
@@ -37,7 +45,7 @@ public class QiitaApiAgent {
     private final String accessToken;
     private List<String> scopes;
 
-    public QiitaApiAgent(Retrofit retrofit, String accessToken) {
+    protected QiitaApiAgent(Retrofit retrofit, String accessToken) {
         this.retrofit = retrofit;
         this.accessToken = accessToken;
     }
@@ -177,7 +185,7 @@ public class QiitaApiAgent {
     private final Map<Class, Object> apis = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    private <T> T ensureApi(Class<T> apiClass) {
+    protected <T> T ensureApi(Class<T> apiClass) {
         synchronized (apis) {
             Object api = apis.get(apiClass);
             if (api == null) {

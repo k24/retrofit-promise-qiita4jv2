@@ -1,6 +1,11 @@
 package com.github.k24.qiita4jv2.model;
 
+import com.github.k24.qiita4jv2.annotation.PersonalOnly;
+import com.github.k24.qiita4jv2.annotation.TeamOnly;
+import com.github.k24.qiita4jv2.model.team.Tagging;
+
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by k24 on 2017/02/13.
@@ -8,18 +13,23 @@ import javax.annotation.Nonnull;
 public class ItemBody {
     @Nonnull
     public String body;
-    public boolean coediting; // Only Team
+    @TeamOnly
+    public boolean coediting;
     public boolean gist;
-    private boolean isPrivate; // Only non-Team
-    //    public tags;
+    @PersonalOnly
+    private boolean isPrivate;
+    @TeamOnly
+    public List<Tagging> tags;
     @Nonnull
     public String title;
     public boolean tweet;
 
+    @PersonalOnly
     public boolean isPrivate() {
         return isPrivate;
     }
 
+    @PersonalOnly
     public void setPrivate(boolean value) {
         this.isPrivate = value;
     }
