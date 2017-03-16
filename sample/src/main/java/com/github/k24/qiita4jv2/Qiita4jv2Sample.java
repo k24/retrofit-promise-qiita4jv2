@@ -4,6 +4,7 @@ import com.github.k24.deferred.Deferred;
 import com.github.k24.deferred.RxJava2DeferredFactory;
 import com.github.k24.qiita4jv2.api.AccessTokensApi;
 import com.github.k24.qiita4jv2.model.Item;
+import com.github.k24.qiita4jv2.model.team.Project;
 import com.github.k24.qiita4jv2.model.team.Team;
 import com.github.k24.qiita4jv2.util.Success;
 import com.github.k24.retrofit2.converter.jsonic.JsonicConverterFactory;
@@ -13,6 +14,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Response;
 
 import java.util.List;
 
@@ -81,15 +83,21 @@ public class Qiita4jv2Sample {
 
         QiitaTeamApiAgent qiitaTeamApiAgent = QiitaTeamApiAgent.create(teamId, qiitaApiAgent);
 
-        System.out.println("teams:");
+        System.out.println("projects:");
 
         try {
-            qiitaTeamApiAgent.teamsApi().teams()
-                    .then(new Deferred.OnResolved<List<Team>, Success>() {
+            qiitaTeamApiAgent.projectsApi().projects(null, null)
+                    .then(new Deferred.OnResolved<Response<List<Project>>, List<Project>>() {
                         @Override
-                        public Success onResolved(List<Team> teams) throws Exception {
-                            for (Team team : teams) {
-                                System.out.println(team.name);
+                        public List<Project> onResolved(Response<List<Project>> listResponse) throws Exception {
+                            return listResponse.body();
+                        }
+                    })
+                    .then(new Deferred.OnResolved<List<Project>, Success>() {
+                        @Override
+                        public Success onResolved(List<Project> projects) throws Exception {
+                            for (Project project : projects) {
+                                System.out.println(project.name);
                             }
                             return Success.SUCCESS;
                         }
