@@ -2,6 +2,7 @@ package com.github.k24.qiita4jv2;
 
 import com.github.k24.qiita4jv2.api.AccessTokensApi;
 import com.github.k24.qiita4jv2.api.team.ExpandedTemplatesApi;
+import com.github.k24.qiita4jv2.api.team.GroupsApi;
 import com.github.k24.qiita4jv2.api.team.LikesApi;
 import com.github.k24.qiita4jv2.api.team.ProjectsApi;
 import com.github.k24.qiita4jv2.api.team.ReactionsInTeamApi;
@@ -72,6 +73,10 @@ public class QiitaTeamApiAgent extends QiitaApiAgent {
 
     public TemplatesApi templatesApi() {
         return ensureApi(TemplatesApi.class);
+    }
+
+    public GroupsApi groupsApi() {
+        return ensureApi(GroupsApi.class);
     }
     //endregion
 }
